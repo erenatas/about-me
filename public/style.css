@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css?family=Fira+Code:400');
+
+.about-section {
+    padding: 2rem;
+    font-family: sans-serif;
+}
+
+.header {
+    padding: 2rem;
+    font-family: sans-serif;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4rem;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+
+.nav-links a {
+    text-decoration: none;
+    font-weight: bold;
+    color: black;
+}
+
+.about-title {
+    position: relative;
+    top: 1rem;
+    right: 0;
+    font-size: 5rem;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    font-family: 'Fira Code';
+    border-bottom: 1px solid #000;
+    width: 100%;
+}
+
+.developer-info {
+    max-width: 900px;
+}
+
+.developer-name {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.developer-tagline {
+    font-size: 4rem;
+    line-height: 1.2;
+    font-weight: bold;
+}
+
+.accent-dot {
+    color: #009000;
+    font-family: 'Fira Code', monospace;
+    font-variant-ligatures:  normal;
+}
+
+.glitch-text {
+    position: relative;
+    display: inline-block;
+    color: #C0C0C0;
+    font-family: 'Fira Code', monospace;
+    font-size: 2.5rem;
+    letter-spacing: -7px;
+}
+
+
+/* Inspired by: Piotr Galor */
+.glitch-text {
+    animation: glitch 2s linear infinite;
+}
+
+.glitch-text:before,
+.glitch-text:after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch-text:before {
+    animation: glitchTop 2s linear infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+
+.glitch-text:after {
+    animation: glitchBotom 3s linear infinite;
+    clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+    -webkit-clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch {
+    2%,64% {
+        transform: translate(2px,0) skew(0deg);
+    }
+    4%,60% {
+        transform: translate(-2px,0) skew(0deg);
+    }
+    62% {
+        transform: translate(0,0) skew(5deg); 
+    }
+}
+
+@keyframes glitchTop {
+    2%,64% {
+        transform: translate(2px,-2px);
+    }
+    4%,60% {
+        transform: translate(0px,0px);
+    }
+    62% {
+        transform: translate(13px,-1px) skew(-5deg); 
+    }
+}
+
+@keyframes glitchBottom {
+    2%,64% {
+        transform: translate(-2px,0);
+    }
+    4%,60% {
+        transform: translate(-2px,0);
+    }
+    62% {
+        transform: translate(-22px,5px) skew(21deg); 
+    }
+}

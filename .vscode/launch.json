@@ -1,0 +1,45 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug Leptos Server",
+            "cargo": {
+                "args": ["run"],
+                "filter": {
+                    "name": "about_me",
+                    "kind": "bin"
+                }
+            },
+            "preLaunchTask": "cargo leptos build",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "sourceLanguages": ["rust"],
+            "env": {
+                "RUST_BACKTRACE": "1",
+                "LEPTOS_OUTPUT_NAME": "about_me",
+                "LEPTOS_SITE_ROOT": "target/site",
+                "LEPTOS_SITE_PKG_DIR": "pkg",
+                "LEPTOS_SITE_ADDR": "127.0.0.1:3000",
+                "LEPTOS_RELOAD_PORT": "3001"
+            }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Debug Client (Chrome)",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack Debug",
+            "configurations": ["Debug Leptos Server", "Debug Client (Chrome)"]
+        }
+    ]
+}

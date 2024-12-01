@@ -1,6 +1,6 @@
 /target
 /dist
-
+*.otf
 
 # Added by cargo
 #

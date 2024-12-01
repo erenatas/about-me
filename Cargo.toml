@@ -1,6 +1,6 @@
 [package]
 name = "about_me"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [lib]
@@ -20,6 +20,25 @@ wasm-bindgen = "=0.2.95"
 thiserror = "1"
 tracing = { version = "0.1", optional = true }
 http = "1"
+typst = "0.12.0"
+typst-svg = "0.12.0"
+typst-as-lib = "0.11.1"
+derive_typst_intoval = "0.3.0"
+opentelemetry = { version = "~0", features = ["logs"] }
+opentelemetry_sdk = { version = "~0", features = ["logs"]}
+opentelemetry-stdout = { version = "~0", features = ["logs"]}
+opentelemetry-appender-log = { version = "~0" }
+opentelemetry-semantic-conventions = { version = "~0" }
+log = "0.4.22"
+
+
+# opentelemetry_sdk = { version = "~0", features = ["rt-async-std", "metrics", "logs", "spec_unstable_metrics_views"] }
+# opentelemetry-otlp = { version = "~0", features = ["http-proto", "http-json", "logs", "reqwest-client", "reqwest-rustls"] }
+# opentelemetry-http = { version = "~0" }
+# opentelemetry-stdout = { version = "~0", features = ["trace"] }
+# opentelemetry-appender-log = { version = "~0" }
+# opentelemetry-semantic-conventions = { version = "~0" }
+
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]

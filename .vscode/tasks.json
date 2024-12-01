@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cargo leptos build",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "leptos",
+                "build"
+            ],
+            "problemMatcher": {
+                "owner": "rust",
+                "fileLocation": ["relative", "${workspaceRoot}"],
+                "pattern": {
+                    "regexp": "^(?:cargo:)?(warning|error)(?: (.+) --> )?(.+):(\\d+):(\\d+)\\s*$",
+                    "severity": 1,
+                    "message": 2,
+                    "file": 3,
+                    "line": 4,
+                    "column": 5
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*?Starting.*?server.*?$",
+                    "endsPattern": "^.*?listening on.*?$"
+                }
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "clear": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

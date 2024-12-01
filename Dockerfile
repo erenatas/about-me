@@ -2,7 +2,7 @@
 FROM rustlang/rust:nightly-bullseye as builder
 
 # If you’re using stable, use this instead
-# FROM rust:1.74-bullseye as builder
+# FROM rust:1.82-bullseye as builder
 
 # Install cargo-binstall, which makes it easier to install other
 # cargo extensions like cargo-leptos
@@ -40,6 +40,9 @@ COPY --from=builder /app/target/site /app/site
 
 # Copy Cargo.toml if it’s needed at runtime
 COPY --from=builder /app/Cargo.toml /app/
+
+# Copy resources
+COPY --from=builder /app/resources /app/resources
 
 # Set any required env variables and
 ENV RUST_LOG="info"

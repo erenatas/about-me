@@ -17,9 +17,15 @@
     margin-bottom: 4rem;
 }
 
+.under-construction {
+    text-align: center;
+}
+
 .logo {
   font-weight: bold;
   font-size: 1.5rem;
+  color: #000;
+  text-decoration: none;
 }
 
 .nav-links {
@@ -54,6 +60,7 @@
 .developer-name {
     font-size: 2rem;
     margin-bottom: 1rem;
+    margin-top: 5rem;
 }
 
 .developer-tagline {
@@ -138,5 +145,43 @@
     }
     62% {
         transform: translate(-22px,5px) skew(21deg); 
+    }
+}
+
+.resume-svg {
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media only screen and (max-width: 768px) {
+    .header {
+        padding: 1rem;
+    }
+    
+    .nav {
+        margin-bottom: 2rem;
+    }
+
+    .about-title {
+        font-size: 2.5rem;
+    }
+
+    .developer-tagline {
+        font-size: 2rem;
+    }
+
+    .developer-name {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        margin-top: 3rem;
+    }
+    
+    .glitch-text {
+        font-size: 2rem;
+    }
+
+    .resume-svg {
+        overflow: auto;
     }
 }

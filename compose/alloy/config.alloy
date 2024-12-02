@@ -1,0 +1,32 @@
+otelcol.receiver.otlp "example" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.example.input]
+    logs    = [otelcol.processor.batch.example.input]
+    traces  = [otelcol.processor.batch.example.input]
+  }
+}
+
+otelcol.processor.batch "example" {
+  output {
+    metrics = [otelcol.exporter.debug.example.input]
+    logs    = [otelcol.exporter.debug.example.input]
+    traces  = [otelcol.exporter.debug.example.input]
+  }
+}
+
+// Add a debug exporter to see the logs directly
+otelcol.exporter.debug "example" {
+  verbosity = "detailed"
+}
+
+livedebugging {
+  enabled = true
+}

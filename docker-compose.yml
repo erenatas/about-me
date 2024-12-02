@@ -25,3 +25,40 @@ services:
   app:
     image: 'erenatas/about-me:0.1.1'
     restart: unless-stopped
+
+  Grafana Alloy batches and processes traces sent to it, generating
+  auto-logs from those traces.
+  Includes Metrics, Logs, Traces and Profiles.
+  alloy:
+    image: grafana/alloy:v1.3.1
+    ports:
+      - "12345:12345"
+      - "12348:12348"
+      - "6832:6832"
+      - "55679:55679"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - "./compose/alloy/config.alloy:/etc/alloy/config.alloy"
+      - "./compose/alloy/endpoints.json:/etc/alloy/endpoints.json"
+    command: [
+      "run",
+      "--server.http.listen-addr=0.0.0.0:12345",
+      "--stability.level=experimental",
+      "/etc/alloy/config.alloy",
+    ]
+
+  # The Grafana dashboarding server.
+  grafana:
+    image: grafana/grafana:11.2.0
+    volumes:
+      - "./compose/grafana/definitions:/var/lib/grafana/dashboards"
+      - "./compose/grafana/provisioning:/etc/grafana/provisioning"
+    ports:
+      - "3003:3000"
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=flameGraph traceqlSearch traceQLStreaming correlations metricsSummary traceqlEditor traceToMetrics traceToProfiles datatrails
+      - GF_INSTALL_PLUGINS=grafana-lokiexplore-app,grafana-exploretraces-app,grafana-pyroscope-app
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true

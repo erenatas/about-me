@@ -6,7 +6,7 @@ async fn main() {
     use axum::Router;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use log::info;
+    use tracing::info;
 
     std::env::set_var("RUST_LOG", "info,warn,error");
     observability::lib::init_opentelemetry();

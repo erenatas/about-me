@@ -16,15 +16,32 @@ otelcol.receiver.otlp "example" {
 
 otelcol.processor.batch "example" {
   output {
-    metrics = [otelcol.exporter.debug.example.input]
-    logs    = [otelcol.exporter.debug.example.input]
+    metrics = [otelcol.exporter.prometheus.prometheus.input]
+    logs    = [otelcol.exporter.otlphttp.loki.input]
     traces  = [otelcol.exporter.debug.example.input]
   }
 }
 
+otelcol.exporter.otlphttp "loki" {
+  client {
+    endpoint = "http://loki:3100/otlp"
+  }
+}
+
+prometheus.remote_write "prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+// Add OTLP to Prometheus converter
+otelcol.exporter.prometheus "prometheus" {
+  forward_to = [prometheus.remote_write.prometheus.receiver]
+}
+
 // Add a debug exporter to see the logs directly
 otelcol.exporter.debug "example" {
-  verbosity = "detailed"
+ verbosity = "detailed"
 }
 
 livedebugging {

@@ -1,15 +1,20 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
+    use about_me::observability::lib::get_axum_metrics_layer;
+    use about_me::observability::metrics;
     use about_me::{app::*, observability};
     use about_me::fileserv::file_and_error_handler;
     use axum::Router;
+    use axum::middleware;
+    use axum::body::Body;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use tracing::info;
 
     std::env::set_var("RUST_LOG", "info,warn,error");
     observability::lib::init_opentelemetry();
+    let metrics_layer = get_axum_metrics_layer();
 
     // Setting get_configuration(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:
@@ -25,6 +30,11 @@ async fn main() {
     let app = Router::new()
         .leptos_routes(&leptos_options, routes, App)
         .fallback(file_and_error_handler)
+        .layer(metrics_layer)
+        .layer(axum::middleware::from_fn(|req: axum::http::Request<Body>, next: middleware::Next| async move {
+            metrics::API_REQUESTS.add(1, &[]);
+            next.run(req).await
+        }))
         .with_state(leptos_options);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();

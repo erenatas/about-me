@@ -18,8 +18,10 @@ pub fn Resume() -> impl IntoView {
 #[server]
 pub async fn get_resume_svg() -> Result<String, ServerFnError> {
     use crate::typst::lib::TypstBuilder;
+    use tracing::info;
 
     // Get the current directory and construct absolute paths
+    info!("Generating resume..");
     let current_dir = std::env::current_dir()?;
     let font_path = current_dir
         .join("resources")
@@ -34,7 +36,7 @@ pub async fn get_resume_svg() -> Result<String, ServerFnError> {
         .join("main.typ")
         .display()
         .to_string();
-    let font_data = std::fs::read(&font_path)?;
+    let font_data: Vec<u8> = std::fs::read(&font_path)?;
     let file_data = std::fs::read_to_string(&file_path)?;
     let mut typst_builder = TypstBuilder::new(&file_data, &font_data);
 

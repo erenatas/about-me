@@ -1,34 +1,34 @@
 services:
-  nginx-proxy-manager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
-    ports:
-      # These ports are in format <host-port>:<container-port>
-      - '5480:80' # Public HTTP Port
-      - '54443:443' # Public HTTPS Port
-      - '5481:81' # Admin Web Port
-      # Add any other Stream port you want to expose
-      # - '21:21' # FTP
+  # nginx-proxy-manager:
+  #   image: 'jc21/nginx-proxy-manager:latest'
+  #   restart: unless-stopped
+  #   ports:
+  #     # These ports are in format <host-port>:<container-port>
+  #     - '5480:80' # Public HTTP Port
+  #     - '54443:443' # Public HTTPS Port
+  #     - '5481:81' # Admin Web Port
+  #     # Add any other Stream port you want to expose
+  #     # - '21:21' # FTP
 
-    # Uncomment the next line if you uncomment anything in the section
-    # environment:
-      # Uncomment this if you want to change the location of
-      # the SQLite DB file within the container
-      # DB_SQLITE_FILE: "/data/database.sqlite"
+  #   # Uncomment the next line if you uncomment anything in the section
+  #   # environment:
+  #     # Uncomment this if you want to change the location of
+  #     # the SQLite DB file within the container
+  #     # DB_SQLITE_FILE: "/data/database.sqlite"
 
-      # Uncomment this if IPv6 is not enabled on your host
-      # DISABLE_IPV6: 'true'
+  #     # Uncomment this if IPv6 is not enabled on your host
+  #     # DISABLE_IPV6: 'true'
 
-    volumes:
-      - ./compose/data:/data:Z
-      - ./compose/letsencrypt:/etc/letsencrypt:Z
-  app:
-    image: 'erenatas/about-me:0.1.1'
-    restart: unless-stopped
+  #   volumes:
+  #     - ./compose/data:/data:Z
+  #     - ./compose/letsencrypt:/etc/letsencrypt:Z
+  # app:
+  #   image: 'erenatas/about-me:0.1.1'
+  #   restart: unless-stopped
 
-  Grafana Alloy batches and processes traces sent to it, generating
-  auto-logs from those traces.
-  Includes Metrics, Logs, Traces and Profiles.
+  # Grafana Alloy batches and processes traces sent to it, generating
+  # auto-logs from those traces.
+  # Includes Metrics, Logs, Traces and Profiles.
   alloy:
     image: grafana/alloy:v1.3.1
     ports:
@@ -47,18 +47,53 @@ services:
       "--stability.level=experimental",
       "/etc/alloy/config.alloy",
     ]
-
-  # The Grafana dashboarding server.
-  grafana:
-    image: grafana/grafana:11.2.0
-    volumes:
-      - "./compose/grafana/definitions:/var/lib/grafana/dashboards"
-      - "./compose/grafana/provisioning:/etc/grafana/provisioning"
+  
+  loki:
+    image: grafana/loki:3.0.0
     ports:
-      - "3003:3000"
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    command:
+      - --web.enable-remote-write-receiver
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
     environment:
-      - GF_FEATURE_TOGGLES_ENABLE=flameGraph traceqlSearch traceQLStreaming correlations metricsSummary traceqlEditor traceToMetrics traceToProfiles datatrails
-      - GF_INSTALL_PLUGINS=grafana-lokiexplore-app,grafana-exploretraces-app,grafana-pyroscope-app
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: false
+          version: 1
+          editable: false
+        - name: Prometheus
+          type: prometheus
+          orgId: 1
+          url: http://prometheus:9090
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+        EOF
+        /run.sh
+    image: grafana/grafana:11.0.0
+    ports:
+      - "3003:3000"

@@ -1,15 +1,27 @@
 
 #[cfg(feature = "ssr")]
 use axum_otel_metrics::HttpMetricsLayer;
+#[cfg(feature = "ssr")]
 use once_cell::sync::Lazy;
+#[cfg(feature = "ssr")]
+use opentelemetry::trace::TraceError;
+#[cfg(feature = "ssr")]
 use opentelemetry_sdk::logs::{LogError, LoggerProvider};
-use opentelemetry_sdk::{metrics::{MetricError, SdkMeterProvider}, Resource};
+#[cfg(feature = "ssr")]
+use opentelemetry_sdk::{metrics::{MetricError, SdkMeterProvider}, Resource, runtime, trace as sdktrace};
+#[cfg(feature = "ssr")]
 use opentelemetry_semantic_conventions::resource::SERVICE_NAME;
-use opentelemetry::KeyValue;
+#[cfg(feature = "ssr")]
+use pyroscope::pyroscope::PyroscopeAgentReady;
+#[cfg(feature = "ssr")]
+use pyroscope::PyroscopeError;
+#[cfg(feature = "ssr")]
+use pyroscope::PyroscopeAgent;
 
 
 #[cfg(feature = "ssr")]
 static RESOURCE: Lazy<Resource> = Lazy::new(|| {
+    use opentelemetry::KeyValue;
     Resource::new(vec![KeyValue::new(SERVICE_NAME, "about-me")])
 });
 
@@ -35,6 +47,20 @@ fn init_otel_logging()  -> Result<LoggerProvider, LogError> {
 }
 
 #[cfg(feature = "ssr")]
+fn init_tracer_provider() -> Result<sdktrace::TracerProvider, TraceError> {
+    use opentelemetry_otlp::{WithExportConfig, SpanExporter};
+    
+    let exporter = SpanExporter::builder()
+        .with_tonic()
+        .with_endpoint("http://localhost:4317")
+        .build()?;
+    Ok(sdktrace::TracerProvider::builder()
+        .with_resource(RESOURCE.clone())
+        .with_batch_exporter(exporter, runtime::Tokio)
+        .build())
+}
+
+#[cfg(feature = "ssr")]
 fn init_otel_metrics() -> Result<SdkMeterProvider, MetricError> {
     use opentelemetry_otlp::MetricExporter;
     use opentelemetry_sdk::{metrics::PeriodicReader, runtime};
@@ -44,6 +70,22 @@ fn init_otel_metrics() -> Result<SdkMeterProvider, MetricError> {
     let reader = PeriodicReader::builder(exporter, runtime::Tokio).build();
 
     Ok(SdkMeterProvider::builder().with_reader(reader).with_resource(RESOURCE.clone()).build())
+}
+
+#[cfg(feature = "ssr")]
+pub fn init_pyroscope() -> Result<PyroscopeAgent<PyroscopeAgentReady>, PyroscopeError> {
+    use pyroscope::PyroscopeAgent;
+    use pyroscope_pprofrs::PprofConfig;
+    use pyroscope_pprofrs::pprof_backend;
+
+    // Configure profiling backend
+    let pprof_config = PprofConfig::new().sample_rate(100);
+    let backend_impl = pprof_backend(pprof_config);
+
+    // Configure Pyroscope Agent
+    PyroscopeAgent::builder("http://localhost:9999", "about-me")
+    .backend(backend_impl)
+    .build()
 }
 
 #[cfg(feature = "ssr")]
@@ -91,6 +133,16 @@ pub fn init_opentelemetry() {
         },
         Err(error) => {
             eprintln!("Failed to set the meter: {}", error);
+        }
+    }
+
+    match init_tracer_provider() {
+        Ok(tracer_provider) => {
+            global::set_tracer_provider(tracer_provider);
+            println!("Tracer has been set successfully.")
+        },
+        Err(error) => {
+            eprintln!("Failed to set the tracer: {}", error)
         }
     }
 }

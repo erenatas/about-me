@@ -1,7 +1,7 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
-    use about_me::observability::lib::get_axum_metrics_layer;
+    use about_me::observability::lib::{get_axum_metrics_layer, init_pyroscope};
     use about_me::observability::metrics;
     use about_me::{app::*, observability};
     use about_me::fileserv::file_and_error_handler;
@@ -10,11 +10,20 @@ async fn main() {
     use axum::body::Body;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
-    use tracing::info;
+    use tracing::{error, info};
 
     std::env::set_var("RUST_LOG", "info,warn,error");
     observability::lib::init_opentelemetry();
     let metrics_layer = get_axum_metrics_layer();
+    match init_pyroscope() {
+        Ok(pyroscope) => {
+            pyroscope.start().expect("Pyroscope failed to start");
+            info!("Pyroscope started.")
+        },
+        Err(error) => {
+            error!("Pyroscope failed to initialize: {}", error)
+        }
+    };
 
     // Setting get_configuration(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:

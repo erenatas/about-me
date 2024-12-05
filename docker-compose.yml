@@ -76,7 +76,7 @@ services:
     volumes:
       - ./compose/tempo/tempo.yaml:/etc/tempo.yaml
       - tempo-data:/var/tempo
-    ports:
+    # ports:
       # - "14268:14268"  # jaeger ingest
       # - "3200:3200"   # tempo
       # - "9095:9095" # tempo grpc

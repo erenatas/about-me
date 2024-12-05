@@ -3,43 +3,27 @@ services:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
     ports:
-      # These ports are in format <host-port>:<container-port>
-      - '5480:80' # Public HTTP Port
-      - '54443:443' # Public HTTPS Port
-      - '5481:81' # Admin Web Port
-      # Add any other Stream port you want to expose
-      # - '21:21' # FTP
-
-    # Uncomment the next line if you uncomment anything in the section
-    # environment:
-      # Uncomment this if you want to change the location of
-      # the SQLite DB file within the container
-      # DB_SQLITE_FILE: "/data/database.sqlite"
-
-      # Uncomment this if IPv6 is not enabled on your host
-      # DISABLE_IPV6: 'true'
-
+      - '5480:80'
+      - '54443:443'
+      - '5481:81'
     volumes:
       - ./compose/data:/data:Z
       - ./compose/letsencrypt:/etc/letsencrypt:Z
+    networks:
+      - npm-public
+
   app:
     image: 'erenatas/about-me:latest'
     build: .
     restart: unless-stopped
+    networks:
+      - npm-public
+      - monitoring
 
-  # Grafana Alloy batches and processes traces sent to it, generating
-  # auto-logs from those traces.
-  # Includes Metrics, Logs, Traces and Profiles.
   alloy:
     image: grafana/alloy:v1.5.1
-    # ports:
-    #   - "12345:12345"
-    #   - "12348:12348"
-    #   - "6832:6832"
-    #   - "55679:55679"
-    #   - "4317:4317"
-    #   - "4318:4318"
-    #   - "9999:9999"
+    restart: unless-stopped
+
     volumes:
       - "./compose/alloy/config.alloy:/etc/alloy/config.alloy"
       - "./compose/alloy/endpoints.json:/etc/alloy/endpoints.json"
@@ -49,47 +33,47 @@ services:
       "--stability.level=experimental",
       "/etc/alloy/config.alloy",
     ]
+    networks:
+      - monitoring
   
   loki:
     image: grafana/loki:3.0.0
-    # ports:
-    #   - "3100:3100"
+    restart: unless-stopped
+
     command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
 
   prometheus:
     image: prom/prometheus:v2.47.0
     command:
       - --web.enable-remote-write-receiver
       - --config.file=/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
+    networks:
+      - monitoring
 
   pyroscope:
     container_name: pyroscope
-    ports:
-        - 4040:4040
+    restart: unless-stopped
     image: grafana/pyroscope:latest
+    networks:
+      - monitoring
 
   tempo:
     image: grafana/tempo:latest
+    restart: unless-stopped
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./compose/tempo/tempo.yaml:/etc/tempo.yaml
       - tempo-data:/var/tempo
-    # ports:
-      # - "14268:14268"  # jaeger ingest
-      # - "3200:3200"   # tempo
-      # - "9095:9095" # tempo grpc
-      # - "4317:4317"  # otlp grpc
-      # - "4318:4318"  # otlp http
-      # - "9411:9411"   # zipkin
-
+    networks:
+      - monitoring
 
   grafana:
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_INSTALL_PLUGINS=grafana-pyroscope-app
     entrypoint:
       - sh
@@ -119,7 +103,16 @@ services:
         EOF
         /run.sh
     image: grafana/grafana:11.2.5
-    # ports:
-    #   - "3003:3000"
+    networks:
+      - npm-public
+      - monitoring
+
 volumes:
   tempo-data:
+
+networks:
+  npm-public:
+    driver: bridge
+  monitoring:
+    driver: bridge
+    internal: true

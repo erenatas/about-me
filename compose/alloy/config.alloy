@@ -1,3 +1,45 @@
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+otelcol.exporter.otlphttp "loki" {
+  client {
+    endpoint = "http://loki:3100/otlp"
+  }
+}
+
+otelcol.exporter.prometheus "prometheus" {
+  forward_to = [prometheus.remote_write.prometheus.receiver]
+}
+
+prometheus.remote_write "prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+otelcol.processor.batch "example" {
+  output {
+    metrics = [otelcol.exporter.prometheus.prometheus.input]
+    logs    = [otelcol.exporter.otlphttp.loki.input]
+    traces  = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.connector.spanlogs "default" {
+  roots = true
+  span_attributes = ["http.method", "http.target", "service.name"]
+
+  output {
+    logs = [otelcol.exporter.otlphttp.loki.input]
+  }
+}
+
 otelcol.receiver.otlp "example" {
   grpc {
     endpoint = "0.0.0.0:4317"
@@ -14,34 +56,18 @@ otelcol.receiver.otlp "example" {
   }
 }
 
-otelcol.processor.batch "example" {
-  output {
-    metrics = [otelcol.exporter.prometheus.prometheus.input]
-    logs    = [otelcol.exporter.otlphttp.loki.input]
-    traces  = [otelcol.exporter.debug.example.input]
-  }
+pyroscope.receive_http "default" {
+   http {
+       listen_address = "0.0.0.0"
+       listen_port = 9999
+   }
+   forward_to = [pyroscope.write.backend.receiver]
 }
 
-otelcol.exporter.otlphttp "loki" {
-  client {
-    endpoint = "http://loki:3100/otlp"
-  }
-}
-
-prometheus.remote_write "prometheus" {
-  endpoint {
-    url = "http://prometheus:9090/api/v1/write"
-  }
-}
-
-// Add OTLP to Prometheus converter
-otelcol.exporter.prometheus "prometheus" {
-  forward_to = [prometheus.remote_write.prometheus.receiver]
-}
-
-// Add a debug exporter to see the logs directly
-otelcol.exporter.debug "example" {
- verbosity = "detailed"
+pyroscope.write "backend" {
+   endpoint {
+       url = "http://pyroscope:4040"
+   }
 }
 
 livedebugging {

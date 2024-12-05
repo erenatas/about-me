@@ -1,4 +1,4 @@
-use crate::resume::Resume;
+use crate::{observability::metrics, resume::Resume};
 #[cfg(feature = "ssr")]
 use axum::http::StatusCode;
 use leptos::*;
@@ -35,6 +35,7 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn HomePage() -> impl IntoView {
+    metrics::PAGE_VIEWS.add(1, &[]);
     view! {
         <div class="about-content">
             <h1 class="about-title"><span class="accent-dot">"->"</span>" about-me"</h1>

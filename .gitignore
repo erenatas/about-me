@@ -1,6 +1,7 @@
 /target
 /dist
 *.otf
+compose/data
 
 # Added by cargo
 #

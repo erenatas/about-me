@@ -24,7 +24,7 @@ COPY . .
 # Build the app
 RUN cargo leptos build --release -vv
 
-FROM debian:bookworm-slim as runtime
+FROM debian:bullseye-slim as runtime
 WORKDIR /app
 RUN apt-get update -y \
   && apt-get install -y --no-install-recommends openssl ca-certificates \

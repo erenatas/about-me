@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
-use opentelemetry::metrics::Counter;
 use opentelemetry::global;
+use opentelemetry::metrics::Counter;
 
 pub static PAGE_VIEWS: Lazy<Counter<u64>> = Lazy::new(|| {
     global::meter("about-me")

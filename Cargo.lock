@@ -282,7 +282,7 @@ dependencies = [
  "http",
  "http-body",
  "opentelemetry 0.24.0",
- "opentelemetry-http 0.13.0",
+ "opentelemetry-http",
  "opentelemetry-otlp 0.17.0",
  "opentelemetry-prometheus",
  "opentelemetry-semantic-conventions 0.16.0",
@@ -2501,19 +2501,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "opentelemetry-http"
-version = "0.27.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10a8a7f5f6ba7c1b286c2fbca0454eaba116f63bbe69ed250b642d36fbb04d80"
-dependencies = [
- "async-trait",
- "bytes",
- "http",
- "opentelemetry 0.27.1",
- "reqwest",
-]
-
-[[package]]
 name = "opentelemetry-otlp"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2523,7 +2510,7 @@ dependencies = [
  "futures-core",
  "http",
  "opentelemetry 0.24.0",
- "opentelemetry-http 0.13.0",
+ "opentelemetry-http",
  "opentelemetry-proto 0.7.0",
  "opentelemetry_sdk 0.24.1",
  "prost 0.13.3",
@@ -2543,11 +2530,9 @@ dependencies = [
  "futures-core",
  "http",
  "opentelemetry 0.27.1",
- "opentelemetry-http 0.27.0",
  "opentelemetry-proto 0.27.0",
  "opentelemetry_sdk 0.27.1",
  "prost 0.13.3",
- "reqwest",
  "thiserror 1.0.69",
  "tokio",
  "tonic",

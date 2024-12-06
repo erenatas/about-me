@@ -1,10 +1,10 @@
 use derive_typst_intoval::{IntoDict, IntoValue};
+use opentelemetry::global;
+use opentelemetry::trace::Tracer;
 use typst::foundations::Bytes;
 use typst::foundations::{Dict, IntoValue};
 use typst::{layout::Abs, model::Document, text::Font};
 use typst_as_lib::TypstTemplate;
-use opentelemetry::global;
-use opentelemetry::trace::Tracer;
 
 pub struct TypstBuilder {
     typst_doc: Document,
@@ -23,7 +23,7 @@ impl TypstBuilder {
 
     pub fn generate_svg(&mut self) -> String {
         let tracer = global::tracer("typst");
-        let mut out  = String::new();
+        let mut out = String::new();
         tracer.in_span("convert_to_svg", |_cx| {
             out = typst_svg::svg_merged(&self.typst_doc, Abs::pt(2.0))
         });

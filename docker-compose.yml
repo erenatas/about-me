@@ -3,27 +3,41 @@ services:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
     ports:
-      - '5480:80'
-      - '54443:443'
-      - '5481:81'
+      - '5480:80' # Public HTTP Port
+      - '54443:443' # Public HTTPS Port
+      - '5481:81' # Admin Web Port
     volumes:
       - ./compose/data:/data:Z
       - ./compose/letsencrypt:/etc/letsencrypt:Z
     networks:
       - npm-public
-
   app:
-    image: 'erenatas/about-me:latest'
-    build: .
-    restart: unless-stopped
-    networks:
-      - npm-public
-      - monitoring
+      image: 'erenatas/about-me:latest'
+      build: .
+      # ports:
+      #   - 8080:8080
+      environment:
+        - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317
+        - OTEL_EXPORTER_OTLP_METRICS_PROTOCOL=grpc
+      restart: unless-stopped
+      networks:
+        - npm-public
+        - monitoring
 
+  # Grafana Alloy batches and processes traces sent to it, generating
+  # auto-logs from those traces.
+  # Includes Metrics, Logs, Traces and Profiles.
   alloy:
     image: grafana/alloy:v1.5.1
     restart: unless-stopped
-
+    # ports:
+    #   - "12345:12345"
+    #   - "12348:12348"
+    #   - "6832:6832"
+    #   - "55679:55679"
+    #   - "4317:4317"
+    #   - "4318:4318"
+    #   - "9999:9999"
     volumes:
       - "./compose/alloy/config.alloy:/etc/alloy/config.alloy"
       - "./compose/alloy/endpoints.json:/etc/alloy/endpoints.json"
@@ -39,7 +53,8 @@ services:
   loki:
     image: grafana/loki:3.0.0
     restart: unless-stopped
-
+    # ports:
+    #   - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - monitoring
@@ -49,12 +64,16 @@ services:
     command:
       - --web.enable-remote-write-receiver
       - --config.file=/etc/prometheus/prometheus.yml
+    # ports:
+    #   - "9090:9090"
     networks:
       - monitoring
 
   pyroscope:
     container_name: pyroscope
     restart: unless-stopped
+    # ports:
+    #     - 4040:4040
     image: grafana/pyroscope:latest
     networks:
       - monitoring
@@ -68,12 +87,20 @@ services:
       - tempo-data:/var/tempo
     networks:
       - monitoring
+    # ports:
+      # - "14268:14268"  # jaeger ingest
+      # - "3200:3200"   # tempo
+      # - "9095:9095" # tempo grpc
+      # - "4317:4317"  # otlp grpc
+      # - "4318:4318"  # otlp http
+      # - "9411:9411"   # zipkin
+
 
   grafana:
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
-      # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_INSTALL_PLUGINS=grafana-pyroscope-app
     entrypoint:
       - sh
@@ -103,12 +130,17 @@ services:
         EOF
         /run.sh
     image: grafana/grafana:11.2.5
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    volumes:
+      - "grafana-data:/var/lib/grafana"
     networks:
       - npm-public
       - monitoring
-
 volumes:
   tempo-data:
+  grafana-data:
 
 networks:
   npm-public:

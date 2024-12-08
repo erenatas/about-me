@@ -2,9 +2,7 @@
 /dist
 *.otf
 compose/data
-
-# Added by cargo
-#
-# already existing elements were commented out
-
-#/target
+.env
+.terraform/
+*.tfstate.backup
+*.tfstate

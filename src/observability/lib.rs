@@ -155,10 +155,16 @@ pub fn init_opentelemetry() {
 #[cfg(feature = "ssr")]
 pub fn get_axum_metrics_layer() -> HttpMetricsLayer {
     use axum_otel_metrics::HttpMetricsLayerBuilder;
+    use opentelemetry_otlp::MetricExporter;
+    use opentelemetry_sdk::{metrics::PeriodicReader, runtime};
+
+    let exporter = MetricExporter::builder().with_tonic().build().expect("Metric Exporter failed to build");
+
+    let reader = PeriodicReader::builder(exporter, runtime::Tokio).build();
 
     HttpMetricsLayerBuilder::new()
         .with_service_name(ROLE_NAME.to_string())
         .with_service_version(env!("CARGO_PKG_VERSION").to_string())
-        .with_exporter("otlp".to_string())
+        .with_metric_reader(reader)
         .build()
 }

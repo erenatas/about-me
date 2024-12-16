@@ -100,7 +100,7 @@ services:
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_INSTALL_PLUGINS=grafana-pyroscope-app
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     image: grafana/grafana:11.2.5

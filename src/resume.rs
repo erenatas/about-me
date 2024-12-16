@@ -1,17 +1,23 @@
 use leptos::*;
+use leptos::prelude::ServerFnError;
+use prelude::{Get, Suspense};
+use leptos::prelude::{ClassAttribute, InnerHtmlAttribute, ElementChild, Resource};
 
 #[component]
 pub fn Resume() -> impl IntoView {
-    let resume_data = create_local_resource(|| (), |_| async move { get_resume_svg().await });
+    let resume_async_data = Resource::new(|| (), |_| async move { get_resume_svg().await });
+    
 
     view! {
-        <div>
-            {move || match resume_data.get() {
-                None => view! { <p>"Loading..."</p> }.into_view(),
-                Some(Ok(data)) => view! { <div class="resume-svg" inner_html=data></div> }.into_view(),
-                Some(Err(e)) => view! { <p>"Error: " {e.to_string()}</p> }.into_view(),
-            }}
-        </div>
+        <Suspense fallback=move || view! { <p>"Loading..."</p> }>
+            <div>
+                {move || match resume_async_data.get() {
+                    None           => view! { <div class="resume-svg" inner_html="<p>Loading...</p>".to_string()></div> }.into_view(),
+                    Some(Ok(data)) => view! { <div class="resume-svg" inner_html=data></div> }.into_view(),
+                    Some(Err(e))   => view! { <div class="resume-svg" inner_html=format!("<p>Error: {}</p>", e.to_string()).to_string()></div>}.into_view(),
+                }}
+            </div>
+        </Suspense>
     }
 }
 

@@ -1,14 +1,13 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
-    use about_me::fileserv::file_and_error_handler;
     use about_me::observability::lib::{get_axum_metrics_layer, init_pyroscope};
     use about_me::observability::metrics;
     use about_me::{app::*, observability};
     use axum::body::Body;
     use axum::middleware;
     use axum::Router;
-    use leptos::*;
+    use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use tracing::{error, info};
 
@@ -30,15 +29,18 @@ async fn main() {
     // <https://github.com/leptos-rs/start-axum#executing-a-server-on-a-remote-machine-without-the-toolchain>
     // Alternately a file can be specified such as Some("Cargo.toml")
     // The file would need to be included with the executable when moved to deployment
-    let conf = get_configuration(None).await.unwrap();
+    let conf = get_configuration(None).unwrap();
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
 
     // build our application with a route
     let app = Router::new()
-        .leptos_routes(&leptos_options, routes, App)
-        .fallback(file_and_error_handler)
+        .leptos_routes(&leptos_options, routes, {
+            let leptos_options = leptos_options.clone();
+            move || shell(leptos_options.clone())
+        })
+        .fallback(leptos_axum::file_and_error_handler(shell))
         .layer(metrics_layer)
         .layer(axum::middleware::from_fn(
             |req: axum::http::Request<Body>, next: middleware::Next| async move {

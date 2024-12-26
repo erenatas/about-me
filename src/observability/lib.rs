@@ -160,7 +160,9 @@ pub fn get_axum_metrics_layer() -> HttpMetricsLayer {
 
     let exporter = MetricExporter::builder().with_tonic().build().expect("Metric Exporter failed to build");
 
-    let reader = PeriodicReader::builder(exporter, runtime::Tokio).build();
+    let reader = PeriodicReader::builder(exporter, runtime::Tokio)
+                                    .with_interval(std::time::Duration::from_secs(15))
+                                    .build();
 
     HttpMetricsLayerBuilder::new()
         .with_service_name(ROLE_NAME.to_string())

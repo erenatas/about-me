@@ -22,7 +22,10 @@
                 "LEPTOS_SITE_ROOT": "target/site",
                 "LEPTOS_SITE_PKG_DIR": "pkg",
                 "LEPTOS_SITE_ADDR": "127.0.0.1:3000",
-                "LEPTOS_RELOAD_PORT": "3001"
+                "LEPTOS_RELOAD_PORT": "3001",
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317",
+                "OTEL_EXPORTER_OTLP_METRICS_PROTOCOL": "grpc",
+                "DATABASE_URL": "postgres://localhost/aboutme_db",
             }
         },
         {

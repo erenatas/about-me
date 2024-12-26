@@ -1,4 +1,13 @@
-terraform {
+terraform { 
+  cloud { 
+    
+    organization = "AtasHome" 
+
+    workspaces { 
+      name = "about-me-infrastructure" 
+    } 
+  } 
+  
   required_providers {
     grafana = {
       source  = "grafana/grafana"
@@ -6,6 +15,7 @@ terraform {
     }
   }
 }
+
 
 provider "grafana" {
   url  = var.GRAFANA_URL

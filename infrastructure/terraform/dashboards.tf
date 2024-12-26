@@ -8,3 +8,9 @@ resource "grafana_dashboard" "about-me-general" {
     tempo_uid = grafana_data_source.tempo-data-source.uid
   })
 }
+
+resource "grafana_dashboard_public" "about-me-general" {
+  dashboard_uid = grafana_dashboard.about-me-general.uid
+
+  share = "public"
+}

@@ -1,23 +1,25 @@
-use leptos::*;
 use leptos::prelude::ServerFnError;
+use leptos::prelude::{ClassAttribute, ElementChild, InnerHtmlAttribute, Resource};
+use leptos::*;
 use prelude::{Get, Suspense};
-use leptos::prelude::{ClassAttribute, InnerHtmlAttribute, ElementChild, Resource};
 
 #[component]
 pub fn Resume() -> impl IntoView {
     let resume_async_data = Resource::new(|| (), |_| async move { get_resume_svg().await });
-    
 
     view! {
-        <Suspense fallback=move || view! { <p>"Loading..."</p> }>
-            <div>
-                {move || match resume_async_data.get() {
-                    None           => view! { <div class="resume-svg" inner_html="<p>Loading...</p>".to_string()></div> }.into_view(),
-                    Some(Ok(data)) => view! { <div class="resume-svg" inner_html=data></div> }.into_view(),
-                    Some(Err(e))   => view! { <div class="resume-svg" inner_html=format!("<p>Error: {}</p>", e.to_string()).to_string()></div>}.into_view(),
-                }}
-            </div>
-        </Suspense>
+      <Suspense fallback=move || view! { <p>"Loading..."</p> }>
+        <div>
+          {move || match resume_async_data.get() {
+            None => view! { <div class="resume-svg" inner_html="<p>Loading...</p>".to_string()></div> }.into_view(),
+            Some(Ok(data)) => view! { <div class="resume-svg" inner_html=data></div> }.into_view(),
+            Some(Err(e)) => {
+              view! { <div class="resume-svg" inner_html=format!("<p>Error: {}</p>", e.to_string()).to_string()></div> }
+                .into_view()
+            }
+          }}
+        </div>
+      </Suspense>
     }
 }
 
@@ -33,19 +35,15 @@ pub async fn get_resume_svg() -> Result<String, ServerFnError> {
         info!("Generating resume..");
         let current_dir = std::env::current_dir().map_err(|e| ServerFnError::new(e))?;
 
-        let font_path = current_dir
-            .join("resources")
-            .join("typst")
+        let typst_dir_path: std::path::PathBuf =
+            current_dir.join("app").join("resources").join("typst");
+
+        let font_path = typst_dir_path
             .join("NewCMMath-Regular.otf")
             .display()
             .to_string();
 
-        let file_path = current_dir
-            .join("resources")
-            .join("typst")
-            .join("main.typ")
-            .display()
-            .to_string();
+        let file_path = typst_dir_path.join("main.typ").display().to_string();
 
         let font_data = std::fs::read(&font_path).map_err(|e| ServerFnError::new(e))?;
         let file_data = std::fs::read_to_string(&file_path).map_err(|e| ServerFnError::new(e))?;

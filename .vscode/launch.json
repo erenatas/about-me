@@ -6,7 +6,7 @@
             "request": "launch",
             "name": "Debug Leptos Server",
             "cargo": {
-                "args": ["run"],
+                "args": ["run", "--bin", "about_me"],
                 "filter": {
                     "name": "about_me",
                     "kind": "bin"
@@ -22,24 +22,28 @@
                 "LEPTOS_SITE_ROOT": "target/site",
                 "LEPTOS_SITE_PKG_DIR": "pkg",
                 "LEPTOS_SITE_ADDR": "127.0.0.1:3000",
-                "LEPTOS_RELOAD_PORT": "3001"
-            }
+                "LEPTOS_RELOAD_PORT": "3001",
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317",
+                "OTEL_EXPORTER_OTLP_METRICS_PROTOCOL": "grpc",
+                "DATABASE_URL": "postgres://postgresadmin:postgres!t0il@localhost/aboutme_db",
+                "LEPTOS_WATCH": "ON"
+            },
         },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Debug Client (Chrome)",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}",
-            "sourceMapPathOverrides": {
-                "webpack:///src/*": "${webRoot}/*"
-            }
-        }
+        // {
+        //     "type": "chrome",
+        //     "request": "launch",
+        //     "name": "Debug Client (Chrome)",
+        //     "url": "http://localhost:3000",
+        //     "webRoot": "${workspaceFolder}",
+        //     "sourceMapPathOverrides": {
+        //         "webpack:///src/*": "${webRoot}/*"
+        //     }
+        // }
     ],
-    "compounds": [
-        {
-            "name": "Full Stack Debug",
-            "configurations": ["Debug Leptos Server", "Debug Client (Chrome)"]
-        }
-    ]
+    // "compounds": [
+    //     {
+    //         "name": "Full Stack Debug",
+    //         "configurations": ["Debug Leptos Server", "Debug Client (Chrome)"]
+    //     }
+    // ]
 }

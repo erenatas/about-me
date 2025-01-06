@@ -1,7 +1,14 @@
 pub mod app;
 
+#[cfg(feature = "ssr")]
+pub mod app_state;
+pub mod blog;
+#[cfg(feature = "ssr")]
+pub mod db;
 pub mod observability;
 pub mod resume;
+#[cfg(feature = "ssr")]
+pub mod service;
 pub mod typst;
 
 #[cfg(feature = "hydrate")]

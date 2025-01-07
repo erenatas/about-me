@@ -42,7 +42,7 @@ COPY --from=builder /app/target/site /app/site
 COPY --from=builder /app/Cargo.toml /app/
 
 # Copy resources
-COPY --from=builder /app/app/resources /app/resources
+COPY --from=builder /app/app/resources /app/app/resources
 
 # Set any required env variables and
 ENV RUST_LOG="info"

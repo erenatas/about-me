@@ -28,7 +28,7 @@ pub async fn get_resume_svg() -> Result<String, ServerFnError> {
     use crate::typst::lib::TypstBuilder;
     use opentelemetry::global;
     use opentelemetry::trace::Tracer;
-    use tracing::info;
+    use tracing::{error, info};
 
     let tracer: global::BoxedTracer = global::tracer("get_resume_svg");
     let out = tracer.in_span("call_api", |_cx| -> Result<String, ServerFnError> {
@@ -46,7 +46,12 @@ pub async fn get_resume_svg() -> Result<String, ServerFnError> {
         let file_path = typst_dir_path.join("main.typ").display().to_string();
 
         let font_data = std::fs::read(&font_path).map_err(|e| ServerFnError::new(e))?;
-        let file_data = std::fs::read_to_string(&file_path).map_err(|e| ServerFnError::new(e))?;
+        let file_data = std::fs::read_to_string(&file_path).map_err(|e| ServerFnError::new(
+          {
+            error!("Error: {}, file: {}", e, &file_path);
+            e
+          }
+        ))?;
 
         let mut typst_builder = TypstBuilder::new(&file_data, &font_data);
         Ok(typst_builder.generate_svg())

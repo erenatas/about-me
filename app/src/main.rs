@@ -3,11 +3,7 @@
 async fn main() {
     use about_me::app_state::AppState;
     use about_me::db::DB;
-    use about_me::observability::lib::{get_axum_metrics_layer, init_pyroscope};
-    use about_me::observability::metrics;
-    use about_me::{app::*, observability};
-    use axum::body::Body;
-    use axum::middleware;
+    use about_me::app::*;
     use axum::Router;
     use leptos::prelude::*;
     use leptos_axum::file_and_error_handler;
@@ -15,20 +11,20 @@ async fn main() {
     use migration::{Migrator, MigratorTrait};
     use sea_orm::Database;
     use std::env;
-    use tracing::{error, info};
+    use tracing::info;
 
     std::env::set_var("RUST_LOG", "info,warn,error");
-    observability::lib::init_opentelemetry();
-    let metrics_layer = get_axum_metrics_layer();
-    match init_pyroscope() {
-        Ok(pyroscope) => {
-            pyroscope.start().expect("Pyroscope failed to start");
-            info!("Pyroscope started.")
-        }
-        Err(error) => {
-            error!("Pyroscope failed to initialize: {}", error)
-        }
-    };
+    // observability::lib::init_opentelemetry();  // disabled: no alloy
+    // let _metrics_layer = get_axum_metrics_layer();  // disabled: no alloy
+    // match init_pyroscope() {  // disabled: no pyroscope
+    //     Ok(pyroscope) => {
+    //         pyroscope.start().expect("Pyroscope failed to start");
+    //         info!("Pyroscope started.")
+    //     }
+    //     Err(error) => {
+    //         error!("Pyroscope failed to initialize: {}", error)
+    //     }
+    // };
 
     let db_url =
         env::var("DATABASE_URL").expect("DATABASE_URL is not set in environment variables");
@@ -70,13 +66,6 @@ async fn main() {
             },
         )
         .fallback(file_and_error_handler::<AppState, _>(shell))
-        .layer(metrics_layer)
-        .layer(axum::middleware::from_fn(
-            |req: axum::http::Request<Body>, next: middleware::Next| async move {
-                metrics::API_REQUESTS.add(1, &[]);
-                next.run(req).await
-            },
-        ))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();

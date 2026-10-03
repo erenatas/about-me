@@ -1,5 +1,5 @@
 # Get started with a build env with Rust nightly
-FROM rustlang/rust:nightly-bullseye as builder
+FROM rustlang/rust:nightly-bookworm as builder
 
 # If you’re using stable, use this instead
 # FROM rust:1.82-bullseye as builder
@@ -24,7 +24,7 @@ COPY . .
 # Build the app
 RUN cargo leptos build --release -vv
 
-FROM debian:bullseye-slim as runtime
+FROM debian:bookworm-slim as runtime
 WORKDIR /app
 RUN apt-get update -y \
   && apt-get install -y --no-install-recommends openssl ca-certificates \

@@ -1,5 +1,5 @@
 use crate::{
-    blog::Blog, blog::BlogContent, blog::BlogList, observability::metrics, resume::Resume,
+    blog::Blog, blog::BlogContent, blog::BlogList, resume::Resume,
 };
 #[cfg(feature = "ssr")]
 use axum::http::StatusCode;
@@ -72,7 +72,7 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn HomePage() -> impl IntoView {
-    metrics::PAGE_VIEWS.add(1, &[]);
+    // metrics::PAGE_VIEWS.add(1, &[]);  // disabled: no metrics backend
     view! {
       <div class="about-content">
         <h1 class="about-title">

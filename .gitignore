@@ -6,3 +6,5 @@ compose/data
 .terraform/
 *.tfstate.backup
 *.tfstate
+compose/letsencrypt/
+archive/
